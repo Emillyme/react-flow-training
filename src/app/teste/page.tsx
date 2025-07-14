@@ -17,7 +17,7 @@ import {
   Position,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { INITIAL_STEPS, INITIAL_LANES, INITIAL_CONNECTIONS } from '../data/fake-data';
+import { INITIAL_STEPS, INITIAL_LANES, INITIAL_CONNECTIONS } from '../../data/fake-data';
 import { styleText } from 'util';
 
 
