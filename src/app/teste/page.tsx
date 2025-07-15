@@ -15,6 +15,7 @@ import {
     Background,
     Controls,
     Position,
+    MiniMap,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { INITIAL_STEPS, INITIAL_LANES, INITIAL_CONNECTIONS } from '../../data/fake-data';
@@ -31,11 +32,11 @@ const nodeTypes = {
     lane: LaneNode
 }
 
-const COLUMN_WIDTH = 400; // é a largrura de cada step
-const LANE_HEADER_HEIGHT = 50; // é o nome que ta encima da lane
-const PROCESS_NODE_HEIGHT = 160; // altura baseada no nodes (os blocos do processo e tals)
+const COLUMN_WIDTH = 280; // é a largrura de cada step
+const LANE_HEADER_HEIGHT = 30; // é o nome que ta encima da lane
+const PROCESS_NODE_HEIGHT = 130; // altura baseada no nodes (os blocos do processo e tals)
 const LANE_HEIGHT = LANE_HEADER_HEIGHT + PROCESS_NODE_HEIGHT * 2; // altuara total de cada lane
-const LANE_VERTICAL_PADDING = 40; // padding msm
+const LANE_VERTICAL_PADDING = 80; // padding msm msm
 
 //cria um map, onde ele pega os lanes e faz cada um ter um index
 //ficando tipo:
@@ -77,8 +78,8 @@ const stepNodes: Node[] = INITIAL_STEPS.map((step) => {
         targetPosition: Position.Left,
         type: 'custom',
         position: {
-            x: (step.columnIndex + 0.50) * COLUMN_WIDTH, // centraliza um pouco na coluna
-            y: (laneIndex * LANE_HEIGHT) + LANE_HEADER_HEIGHT + LANE_VERTICAL_PADDING, // Posiciona abaixo do header da lane e aqui que posiciona CERTINHO ONDE ELE DEVE ESTAR
+            x: (step.columnIndex + 0.90) * COLUMN_WIDTH, // centraliza um pouco na coluna
+            y: (laneIndex * LANE_HEIGHT) + LANE_HEADER_HEIGHT, // Posiciona abaixo do header da lane e aqui que posiciona CERTINHO ONDE ELE DEVE ESTAR
         },
         data: {
             label: step.title,
@@ -86,12 +87,13 @@ const stepNodes: Node[] = INITIAL_STEPS.map((step) => {
             technologies: step.technologies,
             color: step.color,
             order: step.order,
-            time: step.time
+            time: step.time,
+            laneName: step.laneId
         },
         draggable: false,
         selectable: false
     }
-    
+
 })
 
 const initialNodes: Node[] = [...laneNodes, ...stepNodes] //jjunta tudo
@@ -123,6 +125,7 @@ const edgeOptions = {
 export default function Page() {
     const [nodes, setNodes] = useState<Node[]>(initialNodes);
     const [edges, setEdges] = useState<Edge[]>(initialEdges);
+
     const connectionLineStyle = { stroke: 'red' }
 
     const onNodesChange = useCallback(

@@ -24,7 +24,7 @@ function CustomNode({ data }) {
                 return (
                     <span
                         key={tech}
-                        className='bg-gray-100 py-1 px-3 text-[10px]'
+                        className='flex items-center bg-gray-100 py-1 px-3 text-[10px]'
                     >
                         {tech}
                     </span>
