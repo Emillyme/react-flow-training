@@ -155,8 +155,8 @@ export const INITIAL_STEPS = [
 export const INITIAL_CONNECTIONS = [
   { start: "step-1", end: "step-2", label: "Handoff" },
   { start: "step-2", end: "step-3", label: "Initiates collection" },
-  { start: "step-3", end: "step-5", label: "Wait for Docs (2d)" },
-  { start: "step-4", end: "step-5", label: "Wait for Report (2d)" },
+  { start: "step-3", end: "step-5", label: "Wait for Docs (2d)", lineStyle: 'dashed'}, // aq q define se a linha vai se tracejada ou nn
+  { start: "step-4", end: "step-5", label: "Wait for Report (2d)", lineStyle: 'dashed'},
   { start: "step-5", end: "step-6", label: "To Technical Analysis" },
   { start: "step-6", end: "step-7", label: "Analysis Complete" },
   { start: "step-7", end: "step-8", label: "Decision Sent" },
