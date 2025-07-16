@@ -1,7 +1,7 @@
 "use client";
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
-import { ReactFlow, Background, Controls, applyEdgeChanges, applyNodeChanges, BackgroundVariant, Position, ReactFlowProvider, useReactFlow, useNodesState, type Edge, type Node } from "@xyflow/react";
+import { ReactFlow, Background, Controls, applyEdgeChanges, applyNodeChanges, BackgroundVariant, Position, ReactFlowProvider, useReactFlow, useNodesState, type Edge, type Node, OnNodeDrag } from "@xyflow/react";
 import '@xyflow/react/dist/style.css';
 import LabeledGroupNodeDemo from '@/components/LabeledGroupNodeDemo';
 
@@ -27,9 +27,8 @@ const defaultNodes: Node[] = [
     data: { label: "Node1" },
     sourcePosition: Position.Right,
     type: "default",
-    parentId:"1",// E ISSO AQUI QUE DFINE A RELACAO DE PARENTE CARALHOOOOOOOOOOOOO
-    draggable: conditional ? false : true,
-    selectable: conditional ? false : true
+    // E ISSO AQUI QUE DFINE A RELACAO DE PARENTE CARALHOOOOOOOOOOOOO
+    
   },
   {
     id: "3",
@@ -62,30 +61,43 @@ const defaultEdge = [
 const BasicFlow = () =>{
   const [nodes, setNodes, onNodesChange] = useNodesState(defaultNodes); // nodes do array default
   const { getIntersectingNodes } = useReactFlow();
-
+  const overlappingNodeRef = useRef<Node | null>(null);
   
-  const onNodeDrag = useCallback((_: MouseEvent, node: Node) => { // aparentemente, o "node" e o que estamos clicando
-    const intersections = getIntersectingNodes(node).map((n) => n ); // node que esta "embaixo",  a que voce colide
-    
-    setNodes((ns) =>
-      
-      ns.map((n) =>(
-      {
-        ...n,
-        // position: intersections[0]?.id.includes(n.id) ?  {x: node.position.x += intersections[0].position.x / 2 , y: node.position.y} : node.position,
-        // parentId: intersections[0]?.type === "labeledGroupNode" ? "1" : ''
-      })),
-    );
-    // console.log(intersections[0]?.id)
-    // console.log(node.parentId)
-    console.log(nodes)
-  }, [])
+  const onNodeDrag: OnNodeDrag = (evt, dragNode) =>{
+    const overlappingNode = getIntersectingNodes(dragNode)?.[0];
+    overlappingNodeRef.current = overlappingNode;
+    // console.log(overlappingNode)
+
+    setNodes(prevNodes => prevNodes.map(node =>{
+      if(node.id === dragNode.id){
+        return {
+          ...node
+        }
+      }
+  
+      return node;
+    }))
+  }
+
+  const onNodeDragStop: OnNodeDrag = (evt, dragNode) =>{
+    if(overlappingNodeRef?.current?.type === "labeledGroupNode"){
+      setNodes(prevNodes=>prevNodes.map(node=>{
+        if(node.id===dragNode?.id){
+          console.log({...node, parentId: overlappingNodeRef?.current?.id})
+          return{...node, parentId: overlappingNodeRef?.current?.id}
+         
+        }
+
+        return node;
+      }))
+    }
+  }
 
   
 
   return (
     <div className="w-screen h-screen">
-      <ReactFlow nodeTypes={nodeTypes} defaultNodes={nodes} edges={defaultEdge} onNodesChange={onNodesChange} onNodeDrag={onNodeDrag}>
+      <ReactFlow nodeTypes={nodeTypes} defaultNodes={nodes} edges={defaultEdge} onNodesChange={onNodesChange} onNodeDrag={onNodeDrag} onNodeDragStop={onNodeDragStop}>
         <Background/>
         <Controls />
       </ReactFlow>
