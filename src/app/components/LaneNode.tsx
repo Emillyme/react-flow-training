@@ -8,7 +8,7 @@ export function LaneNode({ data, width, height }: NodeProps<LaneNodeData>) {
   return (
     <div className="">
       <div className="flex">
-        <div className='flex items-center p-10 w-[170px] font-bold text-gray-500 border-b-amber-200 bg-[#0000000D]'>
+        <div className='flex items-center p-10 w-[200px] font-bold text-gray-500 border-b-2 border-b-gray-300 bg-[#00000015]'>
           <p className='text-[20px]'>
             {data.label}
           </p>

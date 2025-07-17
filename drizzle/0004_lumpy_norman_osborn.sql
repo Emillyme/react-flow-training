@@ -1,0 +1,1 @@
+ALTER TABLE `connections` RENAME COLUMN "lineStyle" TO "line_style";

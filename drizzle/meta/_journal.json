@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1752674838704,
+      "tag": "0000_opposite_wallop",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1752675037494,
+      "tag": "0001_perpetual_sharon_ventura",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1752677132295,
+      "tag": "0002_illegal_doctor_doom",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1752677267946,
+      "tag": "0003_spooky_charles_xavier",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1752677483237,
+      "tag": "0004_lumpy_norman_osborn",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1752677607486,
+      "tag": "0005_tricky_lorna_dane",
+      "breakpoints": true
+    }
+  ]
+}

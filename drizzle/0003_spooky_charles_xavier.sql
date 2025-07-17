@@ -1,0 +1,1 @@
+ALTER TABLE `connections` ADD `label` text NOT NULL;

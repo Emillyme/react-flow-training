@@ -1,0 +1,132 @@
+{
+  "lanes": [
+    { "id": "lane-customer", "name": "Customer" },
+    { "id": "lane-insurer-desk", "name": "Insurer (Service Desk)" },
+    { "id": "lane-logistics", "name": "Logistics (Carrier)" },
+    { "id": "lane-claims-adj", "name": "Claims Adjustment" },
+    { "id": "lane-finance", "name": "Finance Dept." }
+  ],
+  "steps": [
+    {
+      "id": "step-1",
+      "laneId": "lane-customer",
+      "columnIndex": 0,
+      "title": "Report Claim",
+      "description": "O processo é iniciado pelo cliente, que acessa o portal online para registrar uma nova solicitação de sinistro. Nesta fase, o cliente preenche um formulário detalhado com informações como número do pedido, data do envio, transportadora responsável, descrição precisa dos danos observados, e anexa todas as evidências disponíveis no momento — como fotografias, vídeos, notas fiscais, comprovantes de envio e qualquer comunicação anterior. Essa etapa é fundamental para garantir um início claro e documentado do processo de análise, fornecendo uma base sólida para os próximos passos.",
+      "order": 1,
+      "time": "30 min",
+      "color": "#007bff",
+      "technologies": ["Web Portal", "Email"]
+    },
+    {
+      "id": "step-2",
+      "laneId": "lane-insurer-desk",
+      "columnIndex": 1,
+      "title": "Open Claim File",
+      "description": "Após o envio da notificação de sinistro pelo cliente, o setor de atendimento da seguradora (Service Desk) realiza a triagem inicial da solicitação. Isso envolve a verificação de dados cadastrais, informações da apólice, dados da carga e validade do seguro. Com essas informações validadas, é criado um registro formal no sistema CRM da empresa, onde toda a movimentação do processo será rastreada. Esse registro permite o acompanhamento estruturado do sinistro, incluindo prazos, documentos recebidos, responsáveis envolvidos e status de cada etapa.",
+      "order": 2,
+      "time": "2 hours",
+      "color": "#28a745",
+      "technologies": ["CRM", "Email"]
+    },
+    {
+      "id": "step-3",
+      "laneId": "lane-insurer-desk",
+      "columnIndex": 2,
+      "title": "Request Documentation",
+      "description": "O Service Desk envia automaticamente um e-mail padronizado para o cliente solicitando a documentação necessária para o andamento da análise. Esse e-mail contém uma lista clara e objetiva dos documentos exigidos, como nota fiscal dos produtos danificados, fotos em alta resolução dos danos, comprovantes de transporte (ex: conhecimento de embarque), apólice de seguro e, se aplicável, laudos técnicos anteriores. Esse processo garante que o cliente tenha clareza sobre os requisitos e reduz trocas desnecessárias, acelerando a obtenção de informações cruciais para a análise do sinistro.",
+      "order": 3,
+      "time": "15 min",
+      "color": "#007bff",
+      "technologies": ["CRM", "Email Template"]
+    },
+    {
+      "id": "step-4",
+      "laneId": "lane-logistics",
+      "columnIndex": 2,
+      "title": "Generate Damage Report",
+      "description": "A transportadora ou operador logístico responsável realiza uma vistoria técnica presencial no local onde a carga foi danificada. Durante a inspeção, são coletadas evidências como fotografias em diversos ângulos, vídeos, depoimentos de testemunhas, registros ambientais (ex: chuva, umidade, temperatura), e anotações de qualquer anormalidade observada no manuseio ou transporte. Todas essas informações são organizadas em um relatório formal, que servirá como base para determinar a causa e a extensão dos danos. Este relatório é um elemento crítico na análise da responsabilidade e na decisão de indenização.",
+      "order": 4,
+      "time": "2 days",
+      "color": "#ffc107",
+      "technologies": ["Mobile App", "Document Scanner"]
+    },
+    {
+      "id": "step-5",
+      "laneId": "lane-insurer-desk",
+      "columnIndex": 3,
+      "title": "Review Submitted Documents",
+      "description": "Após o recebimento dos documentos do cliente e do relatório técnico da transportadora, o Service Desk realiza uma revisão completa do material. A equipe verifica se os documentos estão legíveis, completos e coerentes com as informações iniciais do sinistro. São analisadas questões como divergência de valores, ausência de dados obrigatórios, inconsistência entre as fotos e os relatos, e conformidade com os critérios da apólice. Caso haja pendências, o cliente pode ser contatado para complementação. Essa revisão é essencial para evitar retrabalho nas etapas seguintes e garantir precisão na avaliação técnica.",
+      "order": 5,
+      "time": "1 day",
+      "color": "#28a745",
+      "technologies": ["Document Mgmt System", "CRM"]
+    },
+    {
+      "id": "step-6",
+      "laneId": "lane-claims-adj",
+      "columnIndex": 4,
+      "title": "Technical Claim Analysis",
+      "description": "Com a documentação validada, o processo é direcionado para a equipe de regulação técnica de sinistros. Um analista especializado realiza uma investigação minuciosa, avaliando os documentos, as evidências físicas e os termos da apólice. São analisados critérios como causa provável do dano, nexo de causalidade, limites de cobertura, franquias, exclusões e tempo de resposta. Também é feito um cálculo estimado do valor da indenização, com base nos valores declarados, depreciação, e avaliação de mercado. Esse parecer técnico servirá de base para a decisão formal de pagamento ou recusa do sinistro.",
+      "order": 6,
+      "time": "3 days",
+      "color": "#28a745",
+      "technologies": ["Claims Software", "ERP"]
+    },
+    {
+      "id": "step-7",
+      "laneId": "lane-claims-adj",
+      "columnIndex": 5,
+      "title": "Issue Decision (Approved)",
+      "description": "Finalizada a análise técnica, o regulador de sinistros formaliza a decisão sobre o caso. Se o sinistro for aprovado, um documento oficial é emitido contendo a justificativa da aprovação, os critérios utilizados na análise e o valor exato da indenização. Essa decisão é registrada nos sistemas internos e encaminhada para as áreas de aprovação financeira e pagamento. Caso contrário, em situações de negativa, são indicados os motivos da recusa e encaminhado um comunicado detalhado ao cliente. Essa etapa marca a conclusão da análise técnica e inicia o processo financeiro.",
+      "order": 7,
+      "time": "4 hours",
+      "color": "#17a2b8",
+      "technologies": ["Claims Software"]
+    },
+    {
+      "id": "step-8",
+      "laneId": "lane-insurer-desk",
+      "columnIndex": 6,
+      "title": "Approve Indemnity Payment",
+      "description": "Nesta etapa, um gestor ou responsável autorizado revê a decisão emitida pelo analista de sinistros, garantindo que todas as exigências legais, contratuais e operacionais foram cumpridas. Em seguida, a ordem de pagamento é assinada digitalmente, o que representa a autorização formal para que o valor da indenização seja liberado. Esse processo geralmente envolve fluxos de aprovação com níveis hierárquicos definidos, além da verificação final de compliance. Uma vez aprovado, o pagamento é repassado para o departamento financeiro executar a transação.",
+      "order": 8,
+      "time": "1 hour",
+      "color": "#17a2b8",
+      "technologies": ["ERP", "Digital Signature"]
+    },
+    {
+      "id": "step-9",
+      "laneId": "lane-finance",
+      "columnIndex": 7,
+      "title": "Process Payment",
+      "description": "O setor financeiro da seguradora recebe a autorização de pagamento e dá início ao processo de liberação dos fundos. Os dados bancários do cliente são revisados para garantir que estão corretos e válidos. Após a verificação, o pagamento é efetuado via transferência bancária, PIX ou outro método acordado, seguindo os protocolos de auditoria interna e validação antifraude. O sistema registra a conclusão da transação e emite os comprovantes necessários. Essa etapa garante que o valor da indenização chegue corretamente ao destinatário final, encerrando a parte financeira do processo.",
+      "order": 9,
+      "time": "2 days",
+      "color": "#28a745",
+      "technologies": ["ERP", "Banking System"]
+    },
+    {
+      "id": "step-10",
+      "laneId": "lane-customer",
+      "columnIndex": 8,
+      "title": "Confirm Receipt of Payment",
+      "description": "O cliente é notificado por e-mail ou através do portal sobre o pagamento realizado. Ele pode acessar o sistema para visualizar os detalhes da indenização, valor pago, data de pagamento e comprovantes associados. Uma vez confirmado o recebimento, o processo de sinistro é oficialmente encerrado e o caso é arquivado no sistema. Esse fechamento também pode incluir uma breve pesquisa de satisfação para avaliar a experiência do cliente com o atendimento, promovendo melhorias contínuas no processo. A conclusão bem-sucedida desse passo representa a finalização de todo o ciclo de sinistro.",
+      "order": 10,
+      "time": "5 min",
+      "color": "#6c757d",
+      "technologies": ["Email", "Web Portal"]
+    }
+  ],
+  "connections": [
+    { "start": "step-1", "end": "step-2", "label": "Handoff" },
+    { "start": "step-2", "end": "step-3", "label": "Initiates collection" },
+    { "start": "step-3", "end": "step-5", "label": "Wait for Docs (2d)", "lineStyle": "dashed" },
+    { "start": "step-4", "end": "step-5", "label": "Wait for Report (2d)", "lineStyle": "dashed" },
+    { "start": "step-5", "end": "step-6", "label": "To Technical Analysis" },
+    { "start": "step-6", "end": "step-7", "label": "Analysis Complete" },
+    { "start": "step-7", "end": "step-8", "label": "Decision Sent" },
+    { "start": "step-8", "end": "step-9", "label": "Payment Order" },
+    { "start": "step-9", "end": "step-10", "label": "Payment Sent" }
+  ]
+}
