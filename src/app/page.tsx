@@ -5,7 +5,6 @@ import { ReactFlow, Background, Controls, applyEdgeChanges, applyNodeChanges, Ba
 import '@xyflow/react/dist/style.css';
 import LabeledGroupNodeDemo from '@/components/LabeledGroupNodeDemo';
 import { getData, saveUpdate } from '@/api/useUpdateData';
-import axios from 'axios';
 import { useData } from '@/api/useData';
 // import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -38,6 +37,14 @@ const defaultNodes: Node[] = [
   },
   {
     id: "2",
+    position: { x: 200, y: 250 },
+    data: { label: "Group Node" },
+    width: 380,
+    height: 200,
+    type: "labeledGroupNode",
+  },
+  {
+    id: "3",
     position: { x: 200, y: 50 },
     data: { label: "Node1" },
     sourcePosition: Position.Right,
@@ -46,7 +53,7 @@ const defaultNodes: Node[] = [
     
   },
   {
-    id: "3",
+    id: "4",
     position: { x: 400, y: 50 },
     data: { label: "Node2" },
     targetPosition: Position.Left,
@@ -54,14 +61,7 @@ const defaultNodes: Node[] = [
     draggable: conditional ? false : true,
     selectable: conditional ? false : true
   },
-  {
-    id: "5",
-    position: { x: 200, y: 250 },
-    data: { label: "Group Node" },
-    width: 380,
-    height: 200,
-    type: "labeledGroupNode",
-  },
+  
 ];
 
 const defaultEdge = [
@@ -77,7 +77,7 @@ const BasicFlow = () =>{
   const [nodes, setNodes, onNodesChange] = useNodesState(defaultNodes); // nodes do array default
   const { getIntersectingNodes } = useReactFlow();
   const overlappingNodeRef = useRef<Node | null>(null);
-  const [data, setData] = useState([]);
+  
   
   const onNodeDrag: OnNodeDrag = (evt, dragNode) =>{
     const overlappingNode = getIntersectingNodes(dragNode)?.[0];
@@ -115,19 +115,21 @@ const BasicFlow = () =>{
 
 
   const onSave = () =>{
-
-      saveUpdate(nodes)
-
-    
+    saveUpdate(nodes)
   }
+
 
   // // testando a atualizacao das nodes
   useEffect(() =>{
    async function fetchData(){
-    const data = await getData()
-
-    if(data){
-      setNodes(data.nodes || [])
+    const res = await getData()
+    console.log(res)
+    const nodes = res.data.nodes;
+    
+    
+    if(nodes){
+      console.log("nodes", nodes)
+      setNodes(nodes)
     }
    }
     
@@ -136,7 +138,7 @@ const BasicFlow = () =>{
 
   return (
     <div className="w-screen h-screen">
-      <ReactFlow nodeTypes={nodeTypes} defaultNodes={nodes} edges={defaultEdge} onNodesChange={onNodesChange} onNodeDrag={onNodeDrag} onNodeDragStop={onNodeDragStop}>
+      <ReactFlow nodeTypes={nodeTypes} nodes = {nodes} onNodesChange={onNodesChange} onNodeDrag={onNodeDrag} onNodeDragStop={onNodeDragStop}>
         <Background/>
         <Panel>
           <button onClick={onSave}>

@@ -14,10 +14,11 @@ export async function saveUpdate(nodes: Node[]){
 export async function getData(){
     try{
         const response = await axios.get('http://localhost:7000/data');
-        return response.data;
+        console.log(response)
+        return response
     }catch(error){
         console.error(error)
-        return;
+        
     }
    
    

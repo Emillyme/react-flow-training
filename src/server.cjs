@@ -1,20 +1,23 @@
 const express = require('express')
 const cors = require('cors')
+const fs = require('fs');
 
 const app = express()
 
 app.use(express.json());
 app.use(cors({ credentials: true, origin: true }));
 
+
 let data;
 
 app.get("/data", (req, res)=>{
-    res.send(data);
+    res.send(data)
 })
 
 app.post("/data", (req, res) =>{
-    const {data:newData} = req.body;
-    data = newData;
+   
+    data = req.body
+   
     setTimeout(() =>{
         res.send({status:true});
     }, 1200)
