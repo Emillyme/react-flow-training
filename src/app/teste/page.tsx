@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
     ReactFlow,
     addEdge,
@@ -8,125 +8,132 @@ import {
     applyEdgeChanges,
     type Node,
     type Edge,
-    type OnConnect,
-    type OnNodesChange,
-    type OnEdgesChange,
-    DefaultEdgeOptions,
     Background,
     Controls,
     Position,
-    MiniMap,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { INITIAL_STEPS, INITIAL_LANES, INITIAL_CONNECTIONS } from '../../data/fake-data';
 import CustomNode from '../components/CustomNode';
 import { LaneNode } from '../components/LaneNode';
+import { type Lane, type Step, type Connection } from '@/app/interfaces'
 
-// ANOTAÇÕES :D
-// nodes = etapa de cada processo
-// handle = ação de interligar o processo
-// edge = processo de um para um e sua função.
+const COLUMN_WIDTH = 280;
+const LANE_HEADER_HEIGHT = 30;
+const PROCESS_NODE_HEIGHT = 130;
+const LANE_HEIGHT = LANE_HEADER_HEIGHT + PROCESS_NODE_HEIGHT * 2;
+const LANE_VERTICAL_PADDING = 80;
 
-const nodeTypes = {
-    custom: CustomNode,
-    lane: LaneNode
-}
-
-const COLUMN_WIDTH = 280; // é a largrura de cada step
-const LANE_HEADER_HEIGHT = 30; // é o nome que ta encima da lane
-const PROCESS_NODE_HEIGHT = 130; // altura baseada no nodes (os blocos do processo e tals)
-const LANE_HEIGHT = LANE_HEADER_HEIGHT + PROCESS_NODE_HEIGHT * 2; // altuara total de cada lane
-const LANE_VERTICAL_PADDING = 80; // padding msm msm
-
-//cria um map, onde ele pega os lanes e faz cada um ter um index
-//ficando tipo:
-// lane-customer: 0,
-// lane-insurer-desk: 1,
-// lane-logistics: 2,
-// lane-claims-adj: 3,
-// lane-finance: 4
-// 
-const laneIdToIndex = new Map(INITIAL_LANES.map((lane, index) => [lane.id, index]));
-
-// math.max é pra ver qual valor do arrsy é maior
-const maxColumnIndex = Math.max(...INITIAL_STEPS.map((step) => step.columnIndex));
-const TOTAL_LANE_WIDTH = (maxColumnIndex + 2) * COLUMN_WIDTH;
-
-const laneNodes: Node[] = INITIAL_LANES.map((lane, index) => {
-    return {
-        id: lane.id,
-        type: 'lane', //aq conecta com o component q eu criei
-        position: { x: 0, y: index * LANE_HEIGHT },
-        data: { label: lane.name },
-        style: {
-            zIndex: -1,
-            width: TOTAL_LANE_WIDTH,
-            height: LANE_HEIGHT,
-        },
-        draggable: false,
-        selectable: false
-    }
-})
-
-const stepNodes: Node[] = INITIAL_STEPS.map((step) => {
-    // linha para pegar o index do step e verificar se retorna udefined 
-    const laneIndex = laneIdToIndex.get(step.laneId) ?? 0; // o ?? é para verificar se returna como undefined ou n
-
-    return {
-        id: step.id,
-        sourcePosition: Position.Right,
-        targetPosition: Position.Left,
-        type: 'custom',
-        position: {
-            x: (step.columnIndex + 0.90) * COLUMN_WIDTH, // centraliza um pouco na coluna
-            y: (laneIndex * LANE_HEIGHT) + LANE_HEADER_HEIGHT, // Posiciona abaixo do header da lane e aqui que posiciona CERTINHO ONDE ELE DEVE ESTAR
-        },
-        data: {
-            label: step.title,
-            description: step.description,
-            technologies: step.technologies,
-            color: step.color,
-            order: step.order,
-            time: step.time,
-            laneName: step.laneId
-        },
-        draggable: false,
-        selectable: false
-    }
-
-})
-
-const initialNodes: Node[] = [...laneNodes, ...stepNodes] //jjunta tudo
-
-const initialEdges: Edge[] = INITIAL_CONNECTIONS.map((conn) => {
-    const edge: Edge = {
-        id: conn.start,
-        source: conn.start,
-        target: conn.end,
-        label: conn.label
-    }
-
-    if (conn.lineStyle == 'dashed') {
-        edge.animated = true
-        edge.style = {
-            stroke: 'red'
-        }
-    }
-    return edge;
-})
-
-const edgeOptions = {
-    type: 'step',
-    style: {
-        stroke: 'gray',
-    },
-};
 
 export default function Page() {
-    const [nodes, setNodes] = useState<Node[]>(initialNodes);
-    const [edges, setEdges] = useState<Edge[]>(initialEdges);
+    const [data, setData] = useState(null)
+    const [lanes, setLanes] = useState<Lane[]>([])
+    const [steps, setSteps] = useState<Step[]>([])
+    const [connections, setConnections] = useState<Connection[]>([])
+
+    const [isLoading, setLoading] = useState(true)
+
+    const nodeTypes = {
+        custom: CustomNode,
+        lane: LaneNode
+    }
+
+    useEffect(() => {
+        async function handleFlowData() {
+            const res = await fetch('/api/flow-data');
+            const data = await res.json();
+
+            setData(data);
+            setLanes(data.lanes);
+            setSteps(data.steps);
+            setConnections(data.connections);
+
+            const laneIdToIndex = new Map(data.lanes.map((lane: any, index: any) => [lane.id, index]));
+            const maxColumnIndex = Math.max(...data.steps.map((step: any) => step.columnIndex));
+            const TOTAL_LANE_WIDTH = (maxColumnIndex + 2) * COLUMN_WIDTH;
+
+            const laneNodes: Node[] = data.lanes.map((lane: any, index: any) => ({
+                id: lane.id,
+                type: 'lane',
+                position: { x: 0, y: index * LANE_HEIGHT },
+                data: { label: lane.name },
+                style: {
+                    zIndex: -1,
+                    width: TOTAL_LANE_WIDTH,
+                    height: LANE_HEIGHT,
+                },
+                draggable: false,
+                selectable: false,
+            }));
+
+            const stepNodes: Node[] = data.steps.map((step: any) => {
+                const laneIndex = Number(laneIdToIndex.get(step.laneId)) ?? 0;
+                const technologiesArray = (step.technologies || '')
+                    .split(',')
+                    .map((t: string) => t.trim())
+                    .filter(Boolean);
+
+                return {
+                    id: step.id,
+                    sourcePosition: Position.Right,
+                    targetPosition: Position.Left,
+                    type: 'custom',
+                    position: {
+                        x: (step.columnIndex + 0.90) * COLUMN_WIDTH,
+                        y: (laneIndex * LANE_HEIGHT) + LANE_HEADER_HEIGHT,
+                    },
+                    data: {
+                        label: step.title,
+                        description: step.description,
+                        technologies: technologiesArray,
+                        title: step.title,
+                        color: step.color,
+                        order: step.order,
+                        time: step.time,
+                        laneName: step.laneId,
+                    },
+                    draggable: false,
+                    selectable: true,
+                };
+            });
+
+            const edgeList: Edge[] = data.connections.map((conn: any) => {
+                const edge: Edge = {
+                    id: conn.start,
+                    source: conn.start,
+                    target: conn.end,
+                    label: conn.label,
+                };
+
+                if (conn.lineStyle === 'dashed') {
+                    edge.animated = true;
+                    edge.style = {
+                        stroke: 'red',
+                    };
+                }
+
+                return edge;
+            });
+
+            setNodes([...laneNodes, ...stepNodes]);
+            setEdges(edgeList);
+            setLoading(false);
+        }
+
+        handleFlowData();
+    }, []);
+
+
+    const edgeOptions = {
+        type: 'step',
+        style: {
+            stroke: 'gray',
+        },
+    };
 
     const connectionLineStyle = { stroke: 'red' }
+
+    const [nodes, setNodes] = useState<Node[]>([]);
+    const [edges, setEdges] = useState<Edge[]>([]);
 
     const onNodesChange = useCallback(
         (changes: any) => setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
@@ -141,7 +148,6 @@ export default function Page() {
         (params: any) => setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
         [setEdges],
     );
-
 
     return (
         <div className='h-screen w-screen'>
