@@ -1,9 +1,24 @@
 "use client";
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
-import { ReactFlow, Background, Controls, applyEdgeChanges, applyNodeChanges, BackgroundVariant, Position, ReactFlowProvider, useReactFlow, useNodesState, type Edge, type Node, OnNodeDrag } from "@xyflow/react";
+import { ReactFlow, Background, Controls, applyEdgeChanges, applyNodeChanges, BackgroundVariant, Position, ReactFlowProvider, useReactFlow, useNodesState, type Edge, type Node, OnNodeDrag, ReactFlowInstance, Panel } from "@xyflow/react";
 import '@xyflow/react/dist/style.css';
 import LabeledGroupNodeDemo from '@/components/LabeledGroupNodeDemo';
+import { getData, saveUpdate } from '@/api/useUpdateData';
+import axios from 'axios';
+import { useData } from '@/api/useData';
+// import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// const queryClient = new QueryClient({
+//   defaultOptions: {
+//     queries: {
+//       refetchOnMount: false,
+//       refetchOnWindowFocus: false,
+//       refetchOnReconnect: false,
+//       retry: 0,
+//     },
+//   },
+// });
 
 const nodeTypes = {
   labeledGroupNode: LabeledGroupNodeDemo,
@@ -62,6 +77,7 @@ const BasicFlow = () =>{
   const [nodes, setNodes, onNodesChange] = useNodesState(defaultNodes); // nodes do array default
   const { getIntersectingNodes } = useReactFlow();
   const overlappingNodeRef = useRef<Node | null>(null);
+  const [data, setData] = useState([]);
   
   const onNodeDrag: OnNodeDrag = (evt, dragNode) =>{
     const overlappingNode = getIntersectingNodes(dragNode)?.[0];
@@ -71,7 +87,7 @@ const BasicFlow = () =>{
     setNodes(prevNodes => prevNodes.map(node =>{
       if(node.id === dragNode.id){
         return {
-          ...node
+          ...node,
         }
       }
   
@@ -83,22 +99,50 @@ const BasicFlow = () =>{
     if(overlappingNodeRef?.current?.type === "labeledGroupNode"){
       setNodes(prevNodes=>prevNodes.map(node=>{
         if(node.id===dragNode?.id){
-          console.log({...node, parentId: overlappingNodeRef?.current?.id})
-          return{...node, parentId: overlappingNodeRef?.current?.id}
-         
+          // console.log({...node, parentId: overlappingNodeRef?.current?.id})
+          return{...node, parentId: overlappingNodeRef?.current?.id, }
         }
-
+        
         return node;
       }))
+      
     }
+    
   }
 
-  
+  // para utilizar metodos da instancia
+  // const [ rfInstance , setRfInstance ] = useState<ReactFlowInstance<Node, Edge> | null>(null);
+
+
+  const onSave = () =>{
+
+      saveUpdate(nodes)
+
+    
+  }
+
+  // // testando a atualizacao das nodes
+  useEffect(() =>{
+   async function fetchData(){
+    const data = await getData()
+
+    if(data){
+      setNodes(data.nodes || [])
+    }
+   }
+    
+   fetchData()
+  },[])
 
   return (
     <div className="w-screen h-screen">
       <ReactFlow nodeTypes={nodeTypes} defaultNodes={nodes} edges={defaultEdge} onNodesChange={onNodesChange} onNodeDrag={onNodeDrag} onNodeDragStop={onNodeDragStop}>
         <Background/>
+        <Panel>
+          <button onClick={onSave}>
+            save
+          </button>
+        </Panel>
         <Controls />
       </ReactFlow>
     </div>
@@ -108,8 +152,8 @@ const BasicFlow = () =>{
 
 export default function Home(){
   return(
-    <ReactFlowProvider>
-      <BasicFlow/>
-    </ReactFlowProvider>
+      <ReactFlowProvider>
+        <BasicFlow/>
+      </ReactFlowProvider>
   )
 }
