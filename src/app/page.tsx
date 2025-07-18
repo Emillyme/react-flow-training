@@ -5,19 +5,7 @@ import { ReactFlow, Background, Controls, applyEdgeChanges, applyNodeChanges, Ba
 import '@xyflow/react/dist/style.css';
 import LabeledGroupNodeDemo from '@/components/LabeledGroupNodeDemo';
 import { getData, saveUpdate } from '@/api/useUpdateData';
-import { useData } from '@/api/useData';
-// import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// const queryClient = new QueryClient({
-//   defaultOptions: {
-//     queries: {
-//       refetchOnMount: false,
-//       refetchOnWindowFocus: false,
-//       refetchOnReconnect: false,
-//       retry: 0,
-//     },
-//   },
-// });
 
 const nodeTypes = {
   labeledGroupNode: LabeledGroupNodeDemo,
@@ -82,10 +70,21 @@ const BasicFlow = () =>{
   const onNodeDrag: OnNodeDrag = (evt, dragNode) =>{
     const overlappingNode = getIntersectingNodes(dragNode)?.[0];
     overlappingNodeRef.current = overlappingNode;
-    // console.log(overlappingNode)
+    
+    if(!overlappingNodeRef.current || (overlappingNodeRef?.current?.type !== "labeledGroupNode") && dragNode?.parentId){
+      setNodes(prevNodes=>{
 
+        return prevNodes.map(node=>{
+          if(node.id === dragNode.id){
+            return {...node, parentId: undefined}
+          }
+          return node;
+        })
+      })
+    }
     setNodes(prevNodes => prevNodes.map(node =>{
       if(node.id === dragNode.id){
+        
         return {
           ...node,
         }
@@ -93,26 +92,51 @@ const BasicFlow = () =>{
   
       return node;
     }))
+    console.log("on Drag: ", nodes)
   }
 
   const onNodeDragStop: OnNodeDrag = (evt, dragNode) =>{
+
+    if(!overlappingNodeRef?.current || (overlappingNodeRef?.current?.type !== "labeledGroupNode") && dragNode?.parentId){
+      setNodes(prevNodes=>{
+
+        const board = prevNodes?.find
+
+        return prevNodes.map(node=>{
+          if(node.id === dragNode.id){
+            return {...node, parentId: undefined}
+          }
+          return node;
+        })
+      })
+    }
+
+    // if the overlapped node is of the type labeledGroupNode
     if(overlappingNodeRef?.current?.type === "labeledGroupNode"){
+
+      // map the previous state nodes
       setNodes(prevNodes=>prevNodes.map(node=>{
 
+        // makes the child node relative to the parent
         const {x,y} = overlappingNodeRef?.current?.position || {x: 0, y: 0};
         const {x:dragX, y:dragY} = dragNode?.position || {x: 0, y: 0};
 
         const position = {x: dragX - x, y: dragY - y};
 
+        // if the previous state node id is equals to the node that you are dragging
         if(node.id===dragNode?.id){
-          // console.log({...node, parentId: overlappingNodeRef?.current?.id})
+          
+          // add the parent id in the node and return a new state
           return{...node, parentId: overlappingNodeRef?.current?.id, ...(!dragNode?.parentId && {position})}
         }
         
+        // return a new state node or just the previous node
         return node;
       }))
       
     }
+
+    console.log("stop dragging: ", nodes)
     
   }
 
