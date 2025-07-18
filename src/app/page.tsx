@@ -98,9 +98,15 @@ const BasicFlow = () =>{
   const onNodeDragStop: OnNodeDrag = (evt, dragNode) =>{
     if(overlappingNodeRef?.current?.type === "labeledGroupNode"){
       setNodes(prevNodes=>prevNodes.map(node=>{
+
+        const {x,y} = overlappingNodeRef?.current?.position || {x: 0, y: 0};
+        const {x:dragX, y:dragY} = dragNode?.position || {x: 0, y: 0};
+
+        const position = {x: dragX - x, y: dragY - y};
+
         if(node.id===dragNode?.id){
           // console.log({...node, parentId: overlappingNodeRef?.current?.id})
-          return{...node, parentId: overlappingNodeRef?.current?.id, }
+          return{...node, parentId: overlappingNodeRef?.current?.id, ...(!dragNode?.parentId && {position})}
         }
         
         return node;
