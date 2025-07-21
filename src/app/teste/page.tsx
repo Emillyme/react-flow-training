@@ -49,12 +49,12 @@ export default function Page() {
 
             const laneIdToIndex = new Map(data.lanes.map((lane: any, index: any) => [lane.id, index]));
             const maxColumnIndex = Math.max(...data.steps.map((step: any) => step.columnIndex));
-            const TOTAL_LANE_WIDTH = (maxColumnIndex + 2) * COLUMN_WIDTH;
+            const TOTAL_LANE_WIDTH = ((maxColumnIndex + 2) * COLUMN_WIDTH) + LANE_VERTICAL_PADDING;
 
             const laneNodes: Node[] = data.lanes.map((lane: any, index: any) => ({
                 id: lane.id,
                 type: 'lane',
-                position: { x: 0, y: index * LANE_HEIGHT },
+                position: { x: 0, y: index * LANE_HEIGHT},
                 data: { label: lane.name },
                 style: {
                     zIndex: -1,
@@ -74,8 +74,8 @@ export default function Page() {
 
                 return {
                     id: step.id,
-                    sourcePosition: Position.Right,
-                    targetPosition: Position.Left,
+                    sourcePosition: Position.Left,
+                    targetPosition: Position.Right,
                     type: 'custom',
                     position: {
                         x: (step.columnIndex + 0.90) * COLUMN_WIDTH,
