@@ -55,8 +55,8 @@ const defaultNodes: Node[] = [
 const defaultEdge = [
   {
     id: '1',
-    source: '2',
-    target: '3'
+    source: '3',
+    target: '4'
   }
 ]
  
@@ -71,17 +71,17 @@ const BasicFlow = () =>{
     const overlappingNode = getIntersectingNodes(dragNode)?.[0];
     overlappingNodeRef.current = overlappingNode;
     
-    if(!overlappingNodeRef.current || (overlappingNodeRef?.current?.type !== "labeledGroupNode") && dragNode?.parentId){
-      setNodes(prevNodes=>{
+    // if(!overlappingNodeRef.current || (overlappingNodeRef?.current?.type !== "labeledGroupNode") && dragNode?.parentId){
+    //   setNodes(prevNodes=>{
 
-        return prevNodes.map(node=>{
-          if(node.id === dragNode.id){
-            return {...node, parentId: undefined}
-          }
-          return node;
-        })
-      })
-    }
+    //     return prevNodes.map(node=>{
+    //       if(node.id === dragNode.id){
+    //         return {...node, parentId: undefined}
+    //       }
+    //       return node;
+    //     })
+    //   })
+    // }
     setNodes(prevNodes => prevNodes.map(node =>{
       if(node.id === dragNode.id){
         
@@ -100,11 +100,16 @@ const BasicFlow = () =>{
     if(!overlappingNodeRef?.current || (overlappingNodeRef?.current?.type !== "labeledGroupNode") && dragNode?.parentId){
       setNodes(prevNodes=>{
 
-        const board = prevNodes?.find
-
+        const board = prevNodes?.find(prevNode=>prevNode.id === dragNode?.parentId)
+        
         return prevNodes.map(node=>{
           if(node.id === dragNode.id){
-            return {...node, parentId: undefined}
+            const { x , y } = board?.position || {x:0,y:0} 
+            const {x:dragX, y:dragY} = dragNode?.position || {x:0,y:0}
+
+            const position = {x:dragX + x, y:dragY + y}
+            
+            return {...node, position, parentId: undefined}
           }
           return node;
         })
@@ -121,13 +126,22 @@ const BasicFlow = () =>{
         const {x,y} = overlappingNodeRef?.current?.position || {x: 0, y: 0};
         const {x:dragX, y:dragY} = dragNode?.position || {x: 0, y: 0};
 
-        const position = {x: dragX - x, y: dragY - y};
+        let position;
+        
+        if(!node.parentId){
+          position = {x: dragX - x, y: dragY - y};
+        }else if(node.parentId && node?.parentId !== overlappingNodeRef?.current?.id){
+          const prevBoard = prevNodes?.find(node=>node?.id === dragNode?.parentId)
+          const {x:prevBoardX, y:prevBoardY} = prevBoard?.position || {x: 0, y: 0};
+          position = {x:dragX + prevBoardX - x, y:dragY + prevBoardY - y}
+        }
+        
 
         // if the previous state node id is equals to the node that you are dragging
         if(node.id===dragNode?.id){
           
           // add the parent id in the node and return a new state
-          return{...node, parentId: overlappingNodeRef?.current?.id, ...(!dragNode?.parentId && {position})}
+          return{...node, parentId: overlappingNodeRef?.current?.id, ...((!dragNode?.parentId || dragNode?.parentId !== overlappingNodeRef?.current?.id) && {position})}
         }
         
         // return a new state node or just the previous node
@@ -154,7 +168,7 @@ const BasicFlow = () =>{
    async function fetchData(){
     const res = await getData()
     console.log(res)
-    const nodes = res.data.nodes;
+    const nodes = res?.data.nodes;
     
     
     if(nodes){
@@ -168,7 +182,7 @@ const BasicFlow = () =>{
 
   return (
     <div className="w-screen h-screen">
-      <ReactFlow nodeTypes={nodeTypes} nodes = {nodes} onNodesChange={onNodesChange} onNodeDrag={onNodeDrag} onNodeDragStop={onNodeDragStop}>
+      <ReactFlow nodeTypes={nodeTypes} nodes = {nodes}  onNodesChange={onNodesChange} onNodeDrag={onNodeDrag} onNodeDragStop={onNodeDragStop}>
         <Background/>
         <Panel>
           <button onClick={onSave}>
