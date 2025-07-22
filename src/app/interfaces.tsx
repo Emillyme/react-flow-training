@@ -1,3 +1,16 @@
+export enum NodeTypes {
+    Group = "group",
+}
+
+export type LaneNodeData = {
+    id?: string;
+    position?: {x: number, y: number};
+    label?: string;
+    width?: number;
+    height?: number;
+    type?: NodeTypes;
+}
+
 export interface Lane {
     id: string | number;
     name: string;
@@ -5,7 +18,7 @@ export interface Lane {
 
 export interface Step{
     id: string;
-    laneId: any;
+    laneId: any; // this will be the parentId
     columnIndex: number;
     title: string;
     description: string;

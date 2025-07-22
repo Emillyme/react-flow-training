@@ -1,12 +1,14 @@
-import type { NodeProps } from '@xyflow/react';
+import type { NodeProps, Node } from '@xyflow/react';
+import { LaneNodeData } from '../interfaces';
 
-type LaneNodeData = {
-  label: string;
-};
+type GroupNode = Node<LaneNodeData, "string">;
+// type LaneNodeData = {
+//   label: string;
+// };
 
-export function LaneNode({ data, width, height }: NodeProps<LaneNodeData>) {
+export function LaneNode({ data, width, height }: NodeProps<GroupNode>) {
   return (
-    <div className="">
+    <div>
       <div className="flex">
         <div className='flex items-center p-10 w-[200px] font-bold text-gray-500 border-b-2 border-b-gray-300 bg-[#00000015]'>
           <p className='text-[20px]'>

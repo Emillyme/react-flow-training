@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
     ReactFlow,
     addEdge,
@@ -12,11 +12,14 @@ import {
     Controls,
     Position,
     Panel,
+    OnNodeDrag,
+    useReactFlow,
+    ReactFlowProvider,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import CustomNode from '../components/CustomNode';
 import { LaneNode } from '../components/LaneNode';
-import { type Lane, type Step, type Connection } from '@/app/interfaces'
+import { type Lane, type Step, type Connection, LaneNodeData } from '@/app/interfaces'
 import StepCaption from '../components/StepCaption';
 import EditStep from '../components/EditStep';
 
@@ -27,7 +30,7 @@ const LANE_HEIGHT = LANE_HEADER_HEIGHT + PROCESS_NODE_HEIGHT * 2;
 const LANE_VERTICAL_PADDING = 80;
 
 
-export default function Page() {
+const Flow =()=> {
     const [dataStep, setDataStep] = useState<Step[]>([])
     const [lanes, setLanes] = useState<Lane[]>([])
     const [steps, setSteps] = useState<Step[]>([])
@@ -35,6 +38,10 @@ export default function Page() {
 
     const [nodes, setNodes] = useState<Node[]>([]);
     const [edges, setEdges] = useState<Edge[]>([]);
+
+    const overlappingNodeRef = useRef<Node | null>(null);
+    const dragStartNodeRef = useRef<Record<string , Node>>({});
+    const { getIntersectingNodes } = useReactFlow();
     
     const nodeTypes = {
         custom: CustomNode,
@@ -75,16 +82,17 @@ export default function Page() {
 
             const laneNodes: Node[] = data.lanes.map((lane: any, index: any) => ({
                 id: lane.id,
-                type: 'lane',
                 position: { x: 0, y: index * LANE_HEIGHT },
                 data: { label: lane.name },
+                type: "lane",
                 style: {
                     zIndex: -1,
                     width: TOTAL_LANE_WIDTH,
                     height: LANE_HEIGHT,
                 },
-                draggable: false,
-                selectable: false,
+              
+                draggable: true,
+                selectable: true,
             }));
 
             const stepNodes: Node[] = data.steps.map((step: any) => {
@@ -99,9 +107,10 @@ export default function Page() {
                     sourcePosition: Position.Left,
                     targetPosition: Position.Right,
                     type: 'custom',
+                    parentId: step.laneId,
                     position: {
                         x: (step.columnIndex + 0.90) * COLUMN_WIDTH,
-                        y: (laneIndex * LANE_HEIGHT) + LANE_HEADER_HEIGHT,
+                        y: LANE_HEADER_HEIGHT,
                     },
                     data: {
                         ...step,
@@ -109,7 +118,7 @@ export default function Page() {
                         onSave: handleStepUpdate,
                         id: step.id
                     },
-                    draggable: false,
+                    draggable: true,
                     selectable: true,
                 };
             });
@@ -149,7 +158,62 @@ export default function Page() {
 
     const connectionLineStyle = { stroke: 'red' }
 
+    const onNoderag: OnNodeDrag = (evt, dragNode)=>{
+        const overlappingNode = getIntersectingNodes(dragNode)?.[0];
+        overlappingNodeRef.current = overlappingNode;
 
+        if(!dragStartNodeRef.current[dragNode.id]){
+            const original = nodes.find(n => n.id === dragNode.id);
+            if(original){
+                dragStartNodeRef.current[dragNode.id] = {...original}
+            }
+        }
+    }
+
+    const onNodeDragStop: OnNodeDrag = (evt, dragNode)=>{
+
+        if(!overlappingNodeRef?.current || (overlappingNodeRef?.current?.type !== "lane") && dragNode?.parentId){
+            setNodes(prevNodes=>{
+                return prevNodes.map(node=>{
+                    const original = dragStartNodeRef.current[dragNode.id];
+
+                    if(node.id === dragNode.id && original){
+                        return {...node, position: original.position, parentId: original.parentId}
+                    }
+
+                    return node;
+                })
+            })
+        }
+        if(overlappingNodeRef?.current?.type === "lane"){
+            setNodes(prevNodes=>prevNodes.map(node=>{
+
+                const { x , y } = overlappingNodeRef?.current?.position || { x: 0, y: 0 };
+                const { x: dragX, y: dragY} = dragNode?.position || { x: 0, y: 0 };
+
+                let position;
+
+                if(!node.parentId){
+                    position = { x: dragX - x, y: dragY - y };
+                }else if(node.parentId && node?.parentId !== overlappingNodeRef?.current?.id){
+                    const prevBoard = prevNodes?.find(node => node?.id === dragNode?.parentId);
+                    const { x: prevBoardX, y: prevBoardY } = prevBoard?.position || { x: 0, y: 0 };
+                    position = { x: dragX + prevBoardX - x, y: dragY + prevBoardY - y };
+                }
+                if(node.id === dragNode?.id){
+
+                    dragStartNodeRef.current[dragNode.id] ={
+                        ...node,
+                        ...((!dragNode?.parentId || dragNode?.parentId !== overlappingNodeRef?.current?.id) && {position}),
+                        parentId: overlappingNodeRef?.current?.id
+                    }
+                    return {...node, parentId: overlappingNodeRef?.current?.id, ...((!dragNode?.parentId || dragNode?.parentId !== overlappingNodeRef?.current?.id) && {position})}
+                }
+
+                return node;
+            }))
+        }
+    }
 
     const onNodesChange = useCallback(
         (changes: any) => setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
@@ -170,23 +234,35 @@ export default function Page() {
             <div className="">
 
             </div>
-            <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-                connectionLineStyle={connectionLineStyle}
-                defaultEdgeOptions={edgeOptions}
-                nodeTypes={nodeTypes}
-                fitView
-            >
-                <Background />
-                <Panel position='top-right'>
-                    <StepCaption />
-                </Panel>
-                <Controls />
-            </ReactFlow>
+            
+                <ReactFlow
+                    onNodeDrag={onNoderag}
+                    onNodeDragStop={onNodeDragStop}
+                    nodes={nodes}
+                    edges={edges}
+                    onNodesChange={onNodesChange}
+                    onEdgesChange={onEdgesChange}
+                    onConnect={onConnect}
+                    connectionLineStyle={connectionLineStyle}
+                    defaultEdgeOptions={edgeOptions}
+                    nodeTypes={nodeTypes}
+                    fitView
+                >
+                    <Background />
+                    <Panel position='top-right'>
+                        <StepCaption />
+                    </Panel>
+                    <Controls />
+                </ReactFlow>
+            
         </div>
     );
+}
+
+export default function Page(){
+    return(
+        <ReactFlowProvider>
+            <Flow/>
+        </ReactFlowProvider>
+    )
 }

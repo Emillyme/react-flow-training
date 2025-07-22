@@ -4,7 +4,8 @@
     { "id": "lane-insurer-desk", "name": "Insurer (Service Desk)" },
     { "id": "lane-logistics", "name": "Logistics (Carrier)" },
     { "id": "lane-claims-adj", "name": "Claims Adjustment" },
-    { "id": "lane-finance", "name": "Finance Dept." }
+    { "id": "lane-finance", "name": "Finance Dept." },
+    {"id": "lane-test", "name":"test"}
   ],
   "steps": [
     {
