@@ -65,54 +65,59 @@ const BasicFlow = () =>{
   const [nodes, setNodes, onNodesChange] = useNodesState(defaultNodes); // nodes do array default
   const { getIntersectingNodes } = useReactFlow();
   const overlappingNodeRef = useRef<Node | null>(null);
-  
+  const dragStartNodeRef = useRef<Record<string, Node>>({});
+
   
   const onNodeDrag: OnNodeDrag = (evt, dragNode) =>{
     const overlappingNode = getIntersectingNodes(dragNode)?.[0];
     overlappingNodeRef.current = overlappingNode;
-    
-    // if(!overlappingNodeRef.current || (overlappingNodeRef?.current?.type !== "labeledGroupNode") && dragNode?.parentId){
-    //   setNodes(prevNodes=>{
 
-    //     return prevNodes.map(node=>{
-    //       if(node.id === dragNode.id){
-    //         return {...node, parentId: undefined}
-    //       }
-    //       return node;
-    //     })
-    //   })
-    // }
-    setNodes(prevNodes => prevNodes.map(node =>{
-      if(node.id === dragNode.id){
-        
-        return {
-          ...node,
-        }
+
+
+    if(!dragStartNodeRef.current[dragNode.id]){
+      const original = nodes.find(n => n.id === dragNode.id);
+      if(original){
+        dragStartNodeRef.current[dragNode.id] = {...original};
       }
+    }
+    
+    // setNodes(prevNodes => prevNodes.map(node =>{
+    //   if(node.id === dragNode.id){
+        
+    //     return {
+    //       ...node,
+    //     }
+    //   }
   
-      return node;
-    }))
+    //   return node;
+    // }))
     console.log("on Drag: ", nodes)
   }
 
   const onNodeDragStop: OnNodeDrag = (evt, dragNode) =>{
 
+    
+
     if(!overlappingNodeRef?.current || (overlappingNodeRef?.current?.type !== "labeledGroupNode") && dragNode?.parentId){
       setNodes(prevNodes=>{
 
         const board = prevNodes?.find(prevNode=>prevNode.id === dragNode?.parentId)
-        
+    
         return prevNodes.map(node=>{
-          if(node.id === dragNode.id){
-            const { x , y } = board?.position || {x:0,y:0} 
-            const {x:dragX, y:dragY} = dragNode?.position || {x:0,y:0}
+          const original = dragStartNodeRef.current[dragNode.id];
 
-            const position = {x:dragX + x, y:dragY + y}
+          if(node.id === dragNode.id && original){
+
+            // const { x , y } = board?.position || {x:0,y:0} 
+            // const {x:dragX, y:dragY} = dragNode?.position || {x:0,y:0}
+
+            // const position = {x:dragX + x, y:dragY + y}
             
-            return {...node, position, parentId: undefined}
+            return {...node, position: original.position, parentId: original.parentId}
           }
           return node;
         })
+
       })
     }
 
@@ -139,12 +144,18 @@ const BasicFlow = () =>{
 
         // if the previous state node id is equals to the node that you are dragging
         if(node.id===dragNode?.id){
+
+          dragStartNodeRef.current[dragNode.id] = {
+            ...node,
+            ...((!dragNode?.parentId || dragNode?.parentId !== overlappingNodeRef?.current?.id) && {position}),
+            parentId: overlappingNodeRef?.current?.id
+          }
           
           // add the parent id in the node and return a new state
           return{...node, parentId: overlappingNodeRef?.current?.id, ...((!dragNode?.parentId || dragNode?.parentId !== overlappingNodeRef?.current?.id) && {position})}
         }
         
-        // return a new state node or just the previous node
+        // return the another nodes not modified
         return node;
       }))
       
