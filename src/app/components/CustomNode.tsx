@@ -11,16 +11,19 @@ import type { Step } from '../interfaces';
 import EditStep from './EditStep';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
+type CustomNodeData = Step & {
+    onSave: (updatedStep: Step) => void;
+};
+
 type CustomNodeProps = {
-    data: Step;
+    data: CustomNodeData;
 };
 
 function CustomNode({ data }: CustomNodeProps) {
-    const { color, description, order, technologies = [], time, title } = data;
+    const { color, description, order, technologies = [], time, title, onSave } = data;
     const [selectedStep, setSelectedStep] = useState<Step | null>(null)
 
     const trucatedText = description.slice(0, 50)
-    // console.log(data)
     return (
         <Popover>
             <PopoverTrigger asChild>
@@ -78,7 +81,7 @@ function CustomNode({ data }: CustomNodeProps) {
                     <div className="space-y-2">
                         <div className="flex justify-between items-center">
                             <h4 className="font-bold text-[20px]" style={{ color: color }}>{title}</h4>
-                            <EditStep data={data}/>
+                            <EditStep data={data} onSave={onSave}/>
                         </div>
                         <div className="text-muted-foreground text-[17px]">
                             <ScrollArea className="h-[200px] w-fit">

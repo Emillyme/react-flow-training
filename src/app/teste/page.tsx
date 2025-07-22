@@ -33,12 +33,31 @@ export default function Page() {
     const [steps, setSteps] = useState<Step[]>([])
     const [connections, setConnections] = useState<Connection[]>([])
 
-    const [isLoading, setLoading] = useState(true)
+    const [nodes, setNodes] = useState<Node[]>([]);
+    const [edges, setEdges] = useState<Edge[]>([]);
     
     const nodeTypes = {
         custom: CustomNode,
         lane: LaneNode
     }
+
+    // Callback is called only when the setNodes changes
+    const handleStepUpdate = useCallback((updatedStep: Step) => {
+        setNodes((currentNodes) => 
+            currentNodes.map((node) => {
+                if (node.id === updatedStep.id){
+                    return{
+                        ...node,
+                        data: {
+                            ...node.data,
+                            ...updatedStep,
+                        },
+                    };
+                }
+                return node;
+            })
+        )
+    }, [setNodes])
 
     useEffect(() => {
         async function handleFlowData() {
@@ -85,14 +104,10 @@ export default function Page() {
                         y: (laneIndex * LANE_HEIGHT) + LANE_HEADER_HEIGHT,
                     },
                     data: {
-                        label: step.title,
-                        description: step.description,
+                        ...step,
                         technologies: technologiesArray,
-                        title: step.title,
-                        color: step.color,
-                        order: step.order,
-                        time: step.time,
-                        laneName: step.laneId,
+                        onSave: handleStepUpdate,
+                        id: step.id
                     },
                     draggable: false,
                     selectable: true,
@@ -119,7 +134,6 @@ export default function Page() {
 
             setNodes([...laneNodes, ...stepNodes]);
             setEdges(edgeList);
-            setLoading(false);
         }
 
         handleFlowData();
@@ -135,8 +149,7 @@ export default function Page() {
 
     const connectionLineStyle = { stroke: 'red' }
 
-    const [nodes, setNodes] = useState<Node[]>([]);
-    const [edges, setEdges] = useState<Edge[]>([]);
+
 
     const onNodesChange = useCallback(
         (changes: any) => setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
