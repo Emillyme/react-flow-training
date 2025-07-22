@@ -11,13 +11,16 @@ import {
     Background,
     Controls,
     Position,
+    Panel,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import CustomNode from '../components/CustomNode';
 import { LaneNode } from '../components/LaneNode';
 import { type Lane, type Step, type Connection } from '@/app/interfaces'
+import StepCaption from '../components/StepCaption';
+import EditStep from '../components/EditStep';
 
-const COLUMN_WIDTH = 280;
+const COLUMN_WIDTH = 300;
 const LANE_HEADER_HEIGHT = 30;
 const PROCESS_NODE_HEIGHT = 130;
 const LANE_HEIGHT = LANE_HEADER_HEIGHT + PROCESS_NODE_HEIGHT * 2;
@@ -25,13 +28,13 @@ const LANE_VERTICAL_PADDING = 80;
 
 
 export default function Page() {
-    const [data, setData] = useState(null)
+    const [dataStep, setDataStep] = useState<Step[]>([])
     const [lanes, setLanes] = useState<Lane[]>([])
     const [steps, setSteps] = useState<Step[]>([])
     const [connections, setConnections] = useState<Connection[]>([])
 
     const [isLoading, setLoading] = useState(true)
-
+    
     const nodeTypes = {
         custom: CustomNode,
         lane: LaneNode
@@ -42,7 +45,7 @@ export default function Page() {
             const res = await fetch('/api/flow-data');
             const data = await res.json();
 
-            setData(data);
+            setDataStep(data);
             setLanes(data.lanes);
             setSteps(data.steps);
             setConnections(data.connections);
@@ -54,7 +57,7 @@ export default function Page() {
             const laneNodes: Node[] = data.lanes.map((lane: any, index: any) => ({
                 id: lane.id,
                 type: 'lane',
-                position: { x: 0, y: index * LANE_HEIGHT},
+                position: { x: 0, y: index * LANE_HEIGHT },
                 data: { label: lane.name },
                 style: {
                     zIndex: -1,
@@ -151,6 +154,9 @@ export default function Page() {
 
     return (
         <div className='h-screen w-screen'>
+            <div className="">
+
+            </div>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -163,6 +169,9 @@ export default function Page() {
                 fitView
             >
                 <Background />
+                <Panel position='top-right'>
+                    <StepCaption />
+                </Panel>
                 <Controls />
             </ReactFlow>
         </div>

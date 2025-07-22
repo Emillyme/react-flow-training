@@ -56,7 +56,7 @@ const EditStep = ({ data }: Props) => {
         <DialogTrigger asChild>
           <SquarePen className="h-5 w-5 cursor-pointer text-gray-500 hover:text-gray-800" />
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px]" onPointerDownOutside={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle>Edit Step</DialogTitle>
             <DialogDescription>
@@ -73,14 +73,6 @@ const EditStep = ({ data }: Props) => {
               <Button className='rounded-none' variant="outline">Cancel</Button>
             </DialogClose>
             <Button className='rounded-none bg-blue-500 hover:bg-blue-700' onClick={handleSaveData} type="submit">Save changes</Button>
-            
-            {/* <Button className='rounded-none bg-blue-500 hover:bg-blue-700' onClick={() => toast("Step has been changed", {
-              description: '21/07/2025',
-              action: {
-                label: 'Undo',
-                onClick: () => handleSaveData()
-              }
-            })} type="submit">Save changes</Button> */}
           
           </DialogFooter>
         </DialogContent>

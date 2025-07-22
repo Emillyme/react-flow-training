@@ -22,7 +22,7 @@ export async function PUT(req: NextRequest, { params }: { params: { order: strin
     if (updated.length === 0) {
       return NextResponse.json({ message: "Step not found" }, { status: 404 });
     }
-
+    
     return NextResponse.json({ message: "Step updated", data: updated[0] });
   } catch (error) {
     console.error("PUT /api/steps error:", error);

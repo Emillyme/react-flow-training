@@ -20,7 +20,7 @@ function CustomNode({ data }: CustomNodeProps) {
     const [selectedStep, setSelectedStep] = useState<Step | null>(null)
 
     const trucatedText = description.slice(0, 50)
-
+    // console.log(data)
     return (
         <Popover>
             <PopoverTrigger asChild>
@@ -63,13 +63,13 @@ function CustomNode({ data }: CustomNodeProps) {
                     </div>
                     <Handle
                         type="target"
-                        position={Position.Top}
-                        className="w-16 !bg-teal-500"
+                        position={Position.Left}
+                        className="w-56 !bg-teal-500"
                     />
                     <Handle
                         type="source"
-                        position={Position.Bottom}
-                        className="w-16 !bg-teal-500"
+                        position={Position.Right}
+                        className="w-56 !bg-teal-500"
                     />
                 </div>
             </PopoverTrigger>
@@ -80,7 +80,7 @@ function CustomNode({ data }: CustomNodeProps) {
                             <h4 className="font-bold text-[20px]" style={{ color: color }}>{title}</h4>
                             <EditStep data={data}/>
                         </div>
-                        <div className="text-muted-foreground text-sm">
+                        <div className="text-muted-foreground text-[17px]">
                             <ScrollArea className="h-[200px] w-fit">
                                 {description}
                             </ScrollArea>
